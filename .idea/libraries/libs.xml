@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="libs">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/libs/opencv-411.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/spinnaker-1.19.0.22-1.4.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/javacpp-1.5.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/libs/opencv-411.jar!/" />
+    </SOURCES>
+  </library>
+</component>
