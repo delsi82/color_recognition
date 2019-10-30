@@ -2,10 +2,7 @@ package com.weplus.raillandscape
 
 import com.weplus.raillandscape.Utils.findImageStatusNameByValue
 import com.weplus.raillandscape.Utils.printf
-import org.bytedeco.javacpp.BytePointer
-import org.bytedeco.javacpp.IntPointer
-import org.bytedeco.javacpp.LongPointer
-import org.bytedeco.javacpp.SizeTPointer
+import org.bytedeco.javacpp.*
 import org.bytedeco.javacpp.Spinnaker_C.*
 import org.bytedeco.javacpp.Spinnaker_C._spinError
 import org.bytedeco.javacpp.Spinnaker_C._spinImageFileFormat
@@ -16,17 +13,114 @@ import org.opencv.core.Mat
 import org.opencv.core.Rect
 import org.opencv.core.Scalar
 import org.opencv.imgcodecs.Imgcodecs
+import java.awt.image.BufferedImage
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*
 import kotlin.system.exitProcess
-
+import org.opencv.core.CvType
+import java.awt.Toolkit
+import java.nio.ByteBuffer
+import javax.swing.Spring.height
 
 object SpinnakerReader {
 
     private const val MAX_BUFF_LEN = 1024
+
+    /**
+     * Example entry point; please see Enumeration_C example for more in-depth
+     * comments on preparing and cleaning up the system.
+     */
+    @JvmStatic
+    fun main(args: Array<String>) {
+        System.loadLibrary(Core.NATIVE_LIBRARY_NAME)
+        var errReturn = 0
+        var err: _spinError
+
+        // Since this application saves images in the current folder
+        // we must ensure that we have permission to write to this folder.
+        // If we do not have permission, fail right away.
+        if (!File(".").canWrite()) {
+            println("Failed to create file in current folder.  Please check permissions.")
+            exitProcess(-1)
+        }
+
+        // Retrieve singleton reference to system object
+        val hSystem = spinSystem()
+        err = spinSystemGetInstance(hSystem)
+        Utils.exitOnError(err, "Unable to retrieve system instance.")
+
+        // Retrieve list of cameras from the system
+        val hCameraList = spinCameraList()
+        err = spinCameraListCreateEmpty(hCameraList)
+        Utils.exitOnError(err, "Unable to create camera list.")
+
+        err = spinSystemGetCameras(hSystem, hCameraList)
+        Utils.exitOnError(err, "Unable to retrieve camera list.")
+
+        // Retrieve number of cameras
+        val numCameras = SizeTPointer(1)
+        err = spinCameraListGetSize(hCameraList, numCameras)
+        Utils.exitOnError(err, "Unable to retrieve number of cameras.")
+        println("Number of cameras detected: " + numCameras.get() + "\n")
+
+        // Finish if there are no cameras
+        if (numCameras.get() == 0L) {
+            // Clear and destroy camera list before releasing system
+            err = spinCameraListClear(hCameraList)
+            Utils.exitOnError(err, "Unable to clear camera list.")
+
+            err = spinCameraListDestroy(hCameraList)
+            Utils.exitOnError(err, "Unable to destroy camera list.")
+
+            // Release system
+            err = spinSystemReleaseInstance(hSystem)
+            Utils.exitOnError(err, "Unable to release system instance.")
+
+            println("Not enough cameras!")
+            exitProcess(-1)
+        }
+
+        // Run example on each camera
+
+
+        // Select camera
+        val hCamera = spinCamera()
+        err = spinCameraListGet(hCameraList, 0, hCamera)
+
+        if (!Utils.printOnError(err, "Unable to retrieve camera from list.")) {
+
+            //
+            // Run example
+            //
+            val ret = runSingleCamera(hCamera)
+            if (ret.value != _spinError.SPINNAKER_ERR_SUCCESS.value) {
+                errReturn = -1
+            }
+            Utils.printOnError(err, "RunSingleCamera")
+        }
+
+        // Release camera
+        err = spinCameraRelease(hCamera)
+        Utils.printOnError(err, "Error releasing camera.")
+
+        // Clear and destroy camera list before releasing system
+        err = spinCameraListClear(hCameraList)
+        Utils.exitOnError(err, "Unable to clear camera list.")
+
+        err = spinCameraListDestroy(hCameraList)
+        Utils.exitOnError(err, "Unable to destroy camera list.")
+
+        // Release system
+        err = spinSystemReleaseInstance(hSystem)
+        Utils.exitOnError(err, "Unable to release system instance.")
+
+        println("\nDone.")
+
+        exitProcess(errReturn)
+    }
 
 
     /**
@@ -210,7 +304,6 @@ object SpinnakerReader {
             val isIncomplete = BytePointer(1.toLong())
             var hasFailed = false
 
-
             err = spinImageIsIncomplete(hResultImage, isIncomplete)
             if (Utils.printOnError(err, "Unable to determine image completion. Non-fatal error.")) {
                 hasFailed = true
@@ -255,6 +348,7 @@ object SpinnakerReader {
             // Retrieve image height
             val height = SizeTPointer(1)
             err = spinImageGetHeight(hResultImage, height)
+
             if (Utils.printOnError(err, "spinImageGetHeight()")) {
                 println("height = unknown")
             } else {
@@ -266,7 +360,7 @@ object SpinnakerReader {
 
             err = spinImageCreateEmpty(hConvertedImage)
             Utils.printOnError(err, "Unable to create image. Non-fatal error.")
-            err = spinImageConvert(hResultImage, _spinPixelFormatEnums.PixelFormat_BayerRG8.value, hConvertedImage)
+            err = spinImageConvert(hResultImage, _spinPixelFormatEnums.PixelFormat_BGR8.value, hConvertedImage)
             Utils.printOnError(err, "\"Unable to convert image. Non-fatal error.")
 
             // Create unique file name
@@ -275,15 +369,23 @@ object SpinnakerReader {
             else
                 ("Sequencer-C-" + deviceSerialNumber.string.trim { it <= ' ' } + "-" + imageCnt + ".jpg")
 
+            /*
             // Save image
             err = spinImageSave(
                 hConvertedImage,
-                BytePointer("savedframe\\$filename"),
+                BytePointer("c:\\savedframe\\$filename"),
                 _spinImageFileFormat.JPEG.value
             )
+
             if (!Utils.printOnError(err, "Unable to save image. Non-fatal error.")) {
                 println("Image saved at $filename\n")
-            }
+            }*/
+
+            val imageData = Pointer()
+            spinImageGetData(hConvertedImage,imageData)
+
+            val image = Mat(height.get().toInt(),width.get().toInt(),CvType.CV_8UC3, imageData.asByteBuffer())
+            findColor(filename, image, Scalar(17.0, 15.0, 100.0), Scalar(50.0, 56.0, 200.0))
 
             // Destroy converted image
             err = spinImageDestroy(hConvertedImage)
@@ -296,32 +398,6 @@ object SpinnakerReader {
             if (err.value != _spinError.SPINNAKER_ERR_SUCCESS.value) {
                 printf("Unable to release image. Non-fatal error %d...\n\n", err)
             }
-
-            Thread {
-
-                val dir = Paths.get("savedframe")  // specify your directory
-
-                val lastFilePath = Files.list(dir)    // here we get the stream with full directory listing
-                    .filter { f -> !Files.isDirectory(f) }  // exclude subdirectories from listing
-                    .max(Comparator.comparingLong<Path> { f ->
-                        f.toFile().lastModified()
-                    })  // finally get the last file using simple comparator by lastModified field
-
-                if (lastFilePath.isPresent)
-                // your folder may be empty
-                {
-                    val fileImageName = lastFilePath.get().toFile().absolutePath
-                    // do your code here, lastFilePath contains all you need
-                    val image = Imgcodecs.imread(fileImageName, Imgcodecs.IMREAD_UNCHANGED)
-                    println("Read image $fileImageName.........................................")
-                    if (image.empty()) {
-                        println("Could not open or find the image")
-                    }
-                    findColor(fileImageName, image, Scalar(60.0, 78.0, 64.0), Scalar(72.0, 78.0, 64.0))
-                }
-
-
-            }.start()
 
             imageCnt++
         }
@@ -382,99 +458,6 @@ object SpinnakerReader {
 
     }
 
-    /**
-     * Example entry point; please see Enumeration_C example for more in-depth
-     * comments on preparing and cleaning up the system.
-     */
-    @JvmStatic
-    fun main(args: Array<String>) {
-        System.loadLibrary(Core.NATIVE_LIBRARY_NAME)
-        var errReturn = 0
-        var err: _spinError
-
-        // Since this application saves images in the current folder
-        // we must ensure that we have permission to write to this folder.
-        // If we do not have permission, fail right away.
-        if (!File(".").canWrite()) {
-            println("Failed to create file in current folder.  Please check permissions.")
-            exitProcess(-1)
-        }
-
-        // Retrieve singleton reference to system object
-        val hSystem = spinSystem()
-        err = spinSystemGetInstance(hSystem)
-        Utils.exitOnError(err, "Unable to retrieve system instance.")
-
-        // Retrieve list of cameras from the system
-        val hCameraList = spinCameraList()
-        err = spinCameraListCreateEmpty(hCameraList)
-        Utils.exitOnError(err, "Unable to create camera list.")
-
-        err = spinSystemGetCameras(hSystem, hCameraList)
-        Utils.exitOnError(err, "Unable to retrieve camera list.")
-
-        // Retrieve number of cameras
-        val numCameras = SizeTPointer(1)
-        err = spinCameraListGetSize(hCameraList, numCameras)
-        Utils.exitOnError(err, "Unable to retrieve number of cameras.")
-        println("Number of cameras detected: " + numCameras.get() + "\n")
-
-        // Finish if there are no cameras
-        if (numCameras.get() == 0L) {
-            // Clear and destroy camera list before releasing system
-            err = spinCameraListClear(hCameraList)
-            Utils.exitOnError(err, "Unable to clear camera list.")
-
-            err = spinCameraListDestroy(hCameraList)
-            Utils.exitOnError(err, "Unable to destroy camera list.")
-
-            // Release system
-            err = spinSystemReleaseInstance(hSystem)
-            Utils.exitOnError(err, "Unable to release system instance.")
-
-            println("Not enough cameras!")
-            exitProcess(-1)
-        }
-
-        // Run example on each camera
-
-
-        // Select camera
-        val hCamera = spinCamera()
-        err = spinCameraListGet(hCameraList, 0, hCamera)
-
-        if (!Utils.printOnError(err, "Unable to retrieve camera from list.")) {
-
-            //
-            // Run example
-            //
-            val ret = runSingleCamera(hCamera)
-            if (ret.value != _spinError.SPINNAKER_ERR_SUCCESS.value) {
-                errReturn = -1
-            }
-            Utils.printOnError(err, "RunSingleCamera")
-        }
-
-        // Release camera
-        err = spinCameraRelease(hCamera)
-        Utils.printOnError(err, "Error releasing camera.")
-
-        // Clear and destroy camera list before releasing system
-        err = spinCameraListClear(hCameraList)
-        Utils.exitOnError(err, "Unable to clear camera list.")
-
-        err = spinCameraListDestroy(hCameraList)
-        Utils.exitOnError(err, "Unable to destroy camera list.")
-
-        // Release system
-        err = spinSystemReleaseInstance(hSystem)
-        Utils.exitOnError(err, "Unable to release system instance.")
-
-        println("\nDone.")
-
-        exitProcess(errReturn)
-    }
-
     private fun findColor(name: String, image: Mat, lower: Scalar, upper: Scalar): Mat? {
 
         var y = 0
@@ -491,8 +474,12 @@ object SpinnakerReader {
                 Core.inRange(subImage, lower, upper, destination)
                 val blackPixels = Core.countNonZero(destination)
                 if (blackPixels > 0) {
-                    println("Founded!!!")
-                    Imgcodecs.imwrite("foundedColor\\$name _ Frame _ $fileName.jpg", subImage)
+                    if(x != xe) {
+                        println("Founded!!!")
+                        //Toolkit.getDefaultToolkit().beep()
+                        //System.out.flush();
+                        Imgcodecs.imwrite("c:\\Elaborati\\$name _ Frame _ $fileName.jpg", subImage)
+                    }
                 }
                 x += xe
                 fileName++

@@ -28,3 +28,15 @@ compileKotlin {
 compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
+
+//create a single Jar with all dependencies
+task flirJar(type: Jar) {
+    manifest {
+        attributes 'Implementation-Title': 'raillandscape-imagerecognition',
+                'Implementation-Version': version,
+                'Main-Class': 'com.weplus.raillandscape.SpinnakerReader'
+    }
+    baseName = project.name + '-all'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
