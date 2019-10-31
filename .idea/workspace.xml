@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="acc6fecc-1c2a-4c41-ad59-bf5aa3568076" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/weplus/raillandscape/SpinnakerReader.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/weplus/raillandscape/SpinnakerReader.kt" afterDir="false" />
@@ -62,6 +63,12 @@
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="flirReader" type="f1a62948:ProjectNode" />
                 <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="shadow" type="c8890929:TasksNode$1" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="flirReader" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
                 <item name="verification" type="c8890929:TasksNode$1" />
               </path>
             </expand>
@@ -83,6 +90,10 @@
   </component>
   <component name="ProjectId" id="1SbFieI5Q8bVbOXyIQgAMhi0kya" />
   <component name="PropertiesComponent">
+    <property name="GenerateAntBuildDialog.backupFiles" value="true" />
+    <property name="GenerateAntBuildDialog.enableUiFormCompile" value="true" />
+    <property name="GenerateAntBuildDialog.forceTargetJdk" value="true" />
+    <property name="GenerateAntBuildDialog.outputFileNameProperty" value="flirreader" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/jnilibs" />
     <property name="project.structure.last.edited" value="SDKs" />
@@ -112,7 +123,26 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Gradle.raillandscape-imagerecognition [flirJar]">
+  <component name="RunManager" selected="Gradle.raillandscape-imagerecognition [shadowJar]">
+    <configuration name="raillandscape-imagerecognition [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="build" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
+      <method v="2" />
+    </configuration>
     <configuration name="raillandscape-imagerecognition [clean]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -125,6 +155,25 @@
         <option name="taskNames">
           <list>
             <option value="clean" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
+      <method v="2" />
+    </configuration>
+    <configuration name="raillandscape-imagerecognition [customFatJar]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="customFatJar" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -151,6 +200,25 @@
       <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
       <method v="2" />
     </configuration>
+    <configuration name="raillandscape-imagerecognition [shadowJar]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="shadowJar" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
+      <method v="2" />
+    </configuration>
     <configuration name="SpinnakerReader" type="JetRunConfigurationType" factoryName="Kotlin">
       <module name="flirReader.main" />
       <option name="VM_PARAMETERS" value="-Djava.library.path=C:\Users\francesco.delsorbo\IdeaProjects\flirReader\jnilibs\" />
@@ -166,6 +234,9 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Gradle.raillandscape-imagerecognition [shadowJar]" />
+        <item itemvalue="Gradle.raillandscape-imagerecognition [customFatJar]" />
+        <item itemvalue="Gradle.raillandscape-imagerecognition [build]" />
         <item itemvalue="Gradle.raillandscape-imagerecognition [flirJar]" />
         <item itemvalue="Gradle.raillandscape-imagerecognition [clean]" />
       </list>
@@ -182,6 +253,14 @@
       <option name="presentableId" value="Default" />
       <updated>1571824516349</updated>
     </task>
+    <task id="LOCAL-00001" summary="Attivata lettura dello stream buffer e riconoscimento frame con colore verde tramite bit audio.">
+      <created>1572451075772</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1572451075772</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -197,12 +276,16 @@
       </map>
     </option>
   </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Attivata lettura dello stream buffer e riconoscimento frame con colore verde tramite bit audio." />
+    <option name="LAST_COMMIT_MESSAGE" value="Attivata lettura dello stream buffer e riconoscimento frame con colore verde tramite bit audio." />
+  </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="kotlin-line">
           <url>file://$PROJECT_DIR$/src/main/kotlin/com/weplus/raillandscape/SpinnakerReader.kt</url>
-          <line>387</line>
+          <line>388</line>
           <option name="timeStamp" value="7" />
         </line-breakpoint>
       </breakpoints>

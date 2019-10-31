@@ -1,10 +1,11 @@
 plugins {
     id 'java'
     id 'org.jetbrains.kotlin.jvm' version '1.3.50'
+    id 'com.github.johnrengelman.shadow' version '5.1.0'
 }
 
 group 'com.weplus'
-version '1.0'
+version '0.1'
 
 sourceCompatibility = 1.8
 
@@ -15,11 +16,16 @@ repositories {
     }
 }
 
+shadowJar {
+    baseName = 'flirReader'
+    classifier = 'alpha'
+    version = version
+}
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     testCompile group: 'junit', name: 'junit', version: '4.12'
-
 }
 
 compileKotlin {
@@ -30,13 +36,13 @@ compileTestKotlin {
 }
 
 //create a single Jar with all dependencies
-task flirJar(type: Jar) {
+jar {
     manifest {
-        attributes 'Implementation-Title': 'raillandscape-imagerecognition',
-                'Implementation-Version': version,
-                'Main-Class': 'com.weplus.raillandscape.SpinnakerReader'
+        attributes 'Main-Class': 'com.weplus.raillandscape.SpinnakerReader'
     }
-    baseName = project.name + '-all'
+
+    // This line of code recursively collects and copies all of a project's files
+    // and adds them to the JAR itself. One can extend this task, to skip certain
+    // files or particular types at will
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-    with jar
 }
