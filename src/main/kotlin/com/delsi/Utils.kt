@@ -1,4 +1,4 @@
-package com.weplus.raillandscape
+package com.delsi
 
 import org.bytedeco.javacpp.BytePointer
 import org.bytedeco.javacpp.SizeTPointer
@@ -31,15 +31,15 @@ object Utils {
      * @param message additional message to print.
      * @return 'false' if err is SPINNAKER_ERR_SUCCESS, or 'true' for any other 'err' value.
      */
-    fun printOnError(err: _spinError, message: String): Boolean {
+    fun printOnError(err: _spinError, message: String): Boolean =
         if (err.value != _spinError.SPINNAKER_ERR_SUCCESS.value) {
             println(message)
             println("Error " + err.value + " " + findErrorNameByValue(err.value) + "\n")
-            return true
+            true
         } else {
-            return false
+            false
         }
-    }
+
 
     /**
      * This function prints the device information of the camera from the transport
@@ -126,21 +126,6 @@ object Utils {
         err = spinNodeIsReadable(hNode, pbReadable)
         printOnError(err, "Unable to retrieve node readability ($nodeName node)")
         return pbReadable.bool && pbAvailable.bool
-    }
-
-    /**
-     * This function helps to check if a node is available and writable
-     */
-    fun isAvailableAndWritable(hNode: spinNodeHandle, nodeName: String): Boolean {
-        val pbAvailable = BytePointer(1.toLong())
-        var err: _spinError
-        err = spinNodeIsAvailable(hNode, pbAvailable)
-        printOnError(err, "Unable to retrieve node availability ($nodeName node).")
-
-        val pbWritable = BytePointer(1.toLong())
-        err = spinNodeIsWritable(hNode, pbWritable)
-        printOnError(err, "Unable to retrieve node writability ($nodeName node).")
-        return pbWritable.bool && pbAvailable.bool
     }
 
     /**
